@@ -52,13 +52,12 @@ function evaluateCondition(item, condition) {
 
     // Handle key-value pair conditions
     return Object.entries(condition).every(([key, value]) => {
-      // If value is an object (e.g., date condition), handle it
-      if (typeof value === 'object' && !Array.isArray(value) && value.date) {
-        // Assuming we are comparing dates in fields like 'creationDate', 'dueDate', etc.
-        return compareValues(item[key], value);
-      }
-    // Compare item values with conditions (non-date values)
-    return compareValues(item[key], value);
+      // Split the key by '.' to handle nested properties (e.g., 'deviceProperties.port')
+      const keys = key.split('.');  // ['deviceProperties', 'port']
+      // Traverse the object using the keys to access nested properties
+      const itemValue = keys.reduce((obj, k) => obj && obj[k], item);  // Access nested object values
+      // Compare the resolved item value with the condition value
+      return compareValues(itemValue, value);
     });
   }
 

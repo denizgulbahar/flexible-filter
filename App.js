@@ -20,9 +20,9 @@ export default function App() {
   const initialFilters = {
     deviceName: "1",
     deviceType: "",
-    devicePort: "80",
-    deviceLastMaintenance: "",
-    creationDate: "26.01.2022"
+    devicePort: 8088,
+    creationDateMin: '2021-05-01',
+    creationDateMax: '2022-01-06'
   };
 
   // Use the custom hook
@@ -32,7 +32,8 @@ export default function App() {
     { id: 1, label: "Cihaz Adı", filterKey: "deviceName" },
     { id: 2, label: "Cihaz Tipi", filterKey: "deviceType" },
     { id: 3, label: "Cihaz Portu", filterKey: "devicePort" },
-    { id: 4, label: "Cihaz Yaratım Tarihi", filterKey: "creationDate" }
+    { id: 4, label: "Cihaz Tarihi Min", filterKey: "creationDateMin" },
+    { id: 5, label: "Cihaz Tarihi Max", filterKey: "creationDateMax" }
   ]
 
   const firstConditions = {
@@ -49,17 +50,18 @@ export default function App() {
 
   const thirdConditions = {
     "and": [
-      { "creationDate": { date: '2021-01-01', operator: 'greaterThan' } },
-      { "creationDate": { date: '2022-01-06', operator: 'lessThan' } },
+      { "creationDate": { date: deviceFilters["creationDateMin"], operator: 'greaterThan' } },
+      { "creationDate": { date: deviceFilters["creationDateMax"], operator: 'lessThan' } },
     ],
   };
 
   const fourthConditions = {
-    'and': [
-      { "deviceProperties": { "lastMaintenance": deviceFilters["deviceLastMaintenance"] } },
-      { 'deviceType': deviceFilters["deviceType"] },
-  ]}
-  const filteredData = useFlexibleFilter(deviceData, deviceFilters, thirdConditions )
+    and: [
+      { 'deviceProperties.port': 8088 },  // Use key chaining to access nested properties
+      { deviceType: deviceFilters["deviceType"] }
+    ]
+  };
+  const filteredData = useFlexibleFilter(deviceData, deviceFilters, fourthConditions )
 
   return (
     <PaperProvider>

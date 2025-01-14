@@ -49,7 +49,7 @@ export const deviceData = [
     creationDate: '26.05.2022',
     status: false,
     deviceProperties: {
-      port: 8083,
+      port: 8088,
       ip: '192.168.1.4',
       firmwareVersion: 'v1.3',
       lastMaintenance: '2023-05-05'
@@ -105,7 +105,7 @@ export const deviceData = [
     creationDate: '26.12.2021',
     status: true,
     deviceProperties: {
-      port: 8087,
+      port: 8088,
       ip: '192.168.1.8',
       firmwareVersion: 'v1.7',
       lastMaintenance: '2023-12-01'
