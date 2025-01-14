@@ -14,13 +14,10 @@ const { width } = Dimensions.get('window');
 
 export const ScreenWrapper = ({ 
     children, 
-    type, 
     gradientColors, 
     gradientDirection, 
     gradientOpacity 
 }) => {
-    // Determine if the child component have a flatList or not
-    const isFlatList = type === 'flatlist';
     // Keyboard behavior based on the platform
     const behavior = Platform.OS === 'ios' ? 'padding' : 'height';
     // Default gradientColors
@@ -42,17 +39,13 @@ export const ScreenWrapper = ({
                     end={gradientDirection?.end || { x: 1, y: 1 }} // End point, defaults to bottom-right
                 >
                 {/* Made attractive Background  by using Linear Gradient for User Interfaces */}
-                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    {/* Provided the keyboard to close when touching any non-interactive area */}
-                        {isFlatList ? (
-                            //  If Content is flatlist no need scrollView
-                            <>{children}</>
-                        ) : (
-                            //  Otherwise display content in scrollView
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                {children}
-                            </ScrollView>
-                        )}
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
+                        <ScrollView 
+                            showsVerticalScrollIndicator={false} 
+                            contentContainerStyle={{ flexGrow: 1 }}
+                        >
+                            {children}
+                        </ScrollView>
                     </TouchableWithoutFeedback>
                 </LinearGradient>
             </SafeAreaView>
@@ -74,5 +67,4 @@ const styles = StyleSheet.create({
     },
 }
 )
-
 

@@ -1,5 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
 import { 
   Text, 
   View,
@@ -12,25 +10,23 @@ import TableCard from './components/tableCard/tableCard';
 import { ScreenWrapper } from './components/wrapper/screenWrapper';
 import { deviceData } from './data/deviceData';
 import { color } from './styles/color';
-import useDeviceFilter from './utilities/useDeviceFilter';
+import useFilter from './utilities/hooks/useFilter';
+import useFlexibleFilter from './utilities/hooks/useFlexibleFilter';
 
 const { width } = Dimensions.get("window")
 
 // İç içe olan port ve lastMaintenance'da da filtrelemeyi düzgün yap.
 export default function App() {
-  const [deviceFilters, setDeviceFilters] = useState({
+  const initialFilters = {
     deviceName: "1",
     deviceType: "",
     devicePort: "80",
     deviceLastMaintenance: "",
     creationDate: "26.01.2022"
-  })
-  const updateDeviceFilters = (type, value) => {
-    setDeviceFilters(prevValue => ({
-      ...prevValue,
-      [type]: value,
-    }));
   };
+
+  // Use the custom hook
+  const [deviceFilters, updateDeviceFilters] = useFilter(initialFilters);
   
   const inputsData = [
     { id: 1, label: "Cihaz Adı", filterKey: "deviceName" },
@@ -41,32 +37,32 @@ export default function App() {
 
   const firstConditions = {
     'and': [
-        { 'deviceName': deviceFilters["deviceName"] },
-        { 'deviceType': deviceFilters["deviceType"] },
+      { 'deviceName': deviceFilters["deviceName"] },
+      { 'deviceType': deviceFilters["deviceType"] },
   ]}
+
   const secondConditions = {
-    'and': [
-        { "creationDate": deviceFilters["creationDate"], operator:"equal" },
-        { 'deviceType': deviceFilters["deviceType"] },
+    'or': [
+      { 'deviceName': deviceFilters["deviceName"] },
+      { 'deviceType': deviceFilters["deviceType"] },
   ]}
 
   const thirdConditions = {
-    'or': [
-        { 'deviceName': deviceFilters["deviceName"] },
-        { 'deviceType': deviceFilters["deviceType"] },
+    'and': [
+      { "creationDate": { date: deviceFilters["creationDate"], operator: "lessThan" } },
+      { 'deviceType': deviceFilters["deviceType"]},
   ]}
+
   const fourthConditions = {
     'and': [
       { "deviceProperties": { "lastMaintenance": deviceFilters["deviceLastMaintenance"] } },
       { 'deviceType': deviceFilters["deviceType"] },
   ]}
+  const filteredData = useFlexibleFilter(deviceData, deviceFilters, thirdConditions )
 
-  const filteredData = useDeviceFilter(deviceData, deviceFilters, secondConditions )
- console.log("filter:",filteredData)
   return (
     <PaperProvider>
     {/* Optimize performance and manage theme using the theme prop */}
-      <StatusBar style="auto" />
       {/* When the keyboard is opened, scrolled screen content smoothly */}
       <ScreenWrapper>
         {/* Application header */}
@@ -74,12 +70,12 @@ export default function App() {
         {/* Display inputs to filter */}
         <View style={styles.inputContainer}>
           {inputsData.map((item) => (
-            <InputOriginal
-              key={item.id}
-              label={item.label} 
-              value={deviceFilters[item.filterKey]} 
-              onChangeText={(v) => updateDeviceFilters(item.filterKey, v)}
-            />
+          <InputOriginal
+            key={item.id}
+            label={item.label} 
+            value={deviceFilters[item.filterKey]} 
+            onChangeText={(v) => updateDeviceFilters(item.filterKey, v)}
+          />
           ))}
         </View>
         {/* Displaying DataTable  */}
@@ -98,7 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     margin: 5,
-    fontSize: width>= 500 ? 20 : 16, // Responsive fontSize
+    fontSize: width >= 500 ? 20 : 16, // Responsive fontSize
     lineHeight: 24, // Using lineHeight to increase line spacing
     textAlign: "left",
     color: color.black,

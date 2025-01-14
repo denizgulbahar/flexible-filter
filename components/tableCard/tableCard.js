@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, FlatList  } from 'react-native';
 import { Table, Row, Rows } from 'react-native-table-component';
+import { color } from '../../styles/color';
 
 const { width } = Dimensions.get("window")
 
 // Card Componentte keylerin gelmesini sağla index yerine sadece. Sonra da filtreleme yapılacak.
 const TableCard = ({ deviceData }) => {
   // DeviceData Transformations
-  const tableHead = Object.values(deviceData).map(item => Object.keys(item))
+  const tableHead = deviceData.map(item => Object.keys(item))
+  // const tableHead = Object.values(deviceData).map(item => Object.keys(item))
   const tableData = Object.values(deviceData).map(item => Object.values(item))
 
-  console.log("tableHead:",tableHead)
   const tableComponent = () => (
     <Table borderStyle={{ borderWidth: 2, borderColor: '#c8e1ff' }}>
       <Row data={tableHead} style={styles.head} textStyle={styles.text}/>
@@ -29,15 +30,20 @@ const TableCard = ({ deviceData }) => {
     }
     return (
       <View style={{ flex: 1 }}>
-        {tableHead.map((key, innerIndex) => (
-          <View key={`${key}_${innerIndex}`} style={styles.cardContainer}>
-            <Text style={{ flex: 1 }}>{key}:</Text>
-            <Text style={{ flex: 1 }}>
-              {(typeof(tableData[innerIndex])!== "object") ? 
-                tableData[innerIndex] : 
-                JSON.stringify(tableData[innerIndex])
-              }
-            </Text>
+        {tableHead.map((keyArray, index) => (
+          <View key={`${keyArray}_${index}`} style={styles.cardContainer}>
+            {keyArray.map((key, innerIndex) => (
+            <View key={`${key}_${index}`} style={{ flex: 1, flexDirection: "row", padding: 10 }}>
+              <Text style={{ flex: 1 }}>{key}:</Text>
+              <Text style={{ flex: 1 }}>
+                {(typeof(tableData[index])!== "object") ? 
+                  tableData[innerIndex] : 
+                  JSON.stringify(tableData[index][innerIndex])
+                }
+              </Text>
+            </View>
+            ))
+            }
           </View>
         ))}
       </View>
@@ -53,8 +59,10 @@ const TableCard = ({ deviceData }) => {
     ]
     return(
       <FlatList
+        scrollEnabled={false}
         contentContainerStyle={{ flex: 1 }}
         data={data}
+        nestedScrollEnabled={true}
         renderItem={renderCardItem}
         keyExtractor={(index) => index.toString()}
       />
@@ -72,16 +80,13 @@ const TableCard = ({ deviceData }) => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1,  
-    padding: 15, 
-    backgroundColor: '#fff', 
-    borderRadius: 10
   },
   cardContainer:{ 
     flex: 1, 
-    flexDirection: "row",
+    backgroundColor: "#81c784", 
     justifyContent: "space-around", 
-    backgroundColor: "blue", 
-    borderRadius: 15, 
+    borderRadius: 10, 
+    padding: 10,
     margin: 5  
   },
   head: { 
