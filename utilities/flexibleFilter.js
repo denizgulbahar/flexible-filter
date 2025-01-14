@@ -17,7 +17,8 @@ function compareDates(itemDate, valueDate, operator) {
 }
 // Helper function to compare values - Is it date or not 
 function compareValues(itemValue, conditionValue) {
-  if (typeof itemValue === 'string' && typeof conditionValue === 'string') {
+  console.log("f4", itemValue, conditionValue,conditionValue.operator)
+  if (typeof itemValue === 'string') {
     const itemDate = parseDate(itemValue);
     const valueDate = parseDate(conditionValue.date);
 
@@ -51,13 +52,13 @@ function evaluateCondition(item, condition) {
 
     // Handle key-value pair conditions
     return Object.entries(condition).every(([key, value]) => {
-      // If value is an object, handle nested conditions
-      if (typeof value === 'object' && !Array.isArray(value)) {
-        return evaluateCondition(item, value);
+      // If value is an object (e.g., date condition), handle it
+      if (typeof value === 'object' && !Array.isArray(value) && value.date) {
+        // Assuming we are comparing dates in fields like 'creationDate', 'dueDate', etc.
+        return compareValues(item[key], value);
       }
-
-      // Compare item values with conditions
-      return compareValues(item[key], value);
+    // Compare item values with conditions (non-date values)
+    return compareValues(item[key], value);
     });
   }
 

@@ -48,10 +48,11 @@ export default function App() {
   ]}
 
   const thirdConditions = {
-    'and': [
-      { "creationDate": { date: deviceFilters["creationDate"], operator: "lessThan" } },
-      { 'deviceType': deviceFilters["deviceType"]},
-  ]}
+    "and": [
+      { "creationDate": { date: '2021-01-01', operator: 'greaterThan' } },
+      { "creationDate": { date: '2022-01-06', operator: 'lessThan' } },
+    ],
+  };
 
   const fourthConditions = {
     'and': [

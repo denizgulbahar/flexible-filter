@@ -116,7 +116,7 @@ export const deviceData = [
     detail: 'Enerji İzleme Cihazı 16 nolu Sayaç',
     deviceType: 'Yarı Akıllı Elektrik Sayacı',
     location: 'Misket Sk. No:22/B Beştepe Yenimahalle Ankara',
-    creationDate: '26.01.2022',
+    creationDate: '26.01.2024',
     status: false,
     deviceProperties: {
       port: 8088,
