@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { 
   Text, 
   View,
@@ -5,18 +6,17 @@ import {
   Dimensions,
 } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
-import InputOriginal from './components/input/inputOriginal';
 import TableCard from './components/tableCard/tableCard';
 import { ScreenWrapper } from './components/wrapper/screenWrapper';
 import { deviceData } from './data/deviceData';
 import { color } from './styles/color';
-import useFilter from './utilities/hooks/useFilter';
 import useFlexibleFilter from './utilities/hooks/useFlexibleFilter';
 
 const { width } = Dimensions.get("window")
 
 // İç içe olan port ve lastMaintenance'da da filtrelemeyi düzgün yap.
 export default function App() {
+
   const initialFilters = {
     deviceName: "1",
     deviceType: "",
@@ -24,44 +24,39 @@ export default function App() {
     creationDateMin: '2021-05-01',
     creationDateMax: '2022-01-06'
   };
-
-  // Use the custom hook
-  const [deviceFilters, updateDeviceFilters] = useFilter(initialFilters);
-  
-  const inputsData = [
-    { id: 1, label: "Cihaz Adı", filterKey: "deviceName" },
-    { id: 2, label: "Cihaz Tipi", filterKey: "deviceType" },
-    { id: 3, label: "Cihaz Portu", filterKey: "devicePort" },
-    { id: 4, label: "Cihaz Tarihi Min", filterKey: "creationDateMin" },
-    { id: 5, label: "Cihaz Tarihi Max", filterKey: "creationDateMax" }
-  ]
-
+  const [condition, setCondition] = useState({})
   const firstConditions = {
     'and': [
-      { 'deviceName': deviceFilters["deviceName"] },
-      { 'deviceType': deviceFilters["deviceType"] },
+      { 'deviceName': initialFilters["deviceName"] },
+      { 'deviceType': initialFilters["deviceType"] },
   ]}
 
   const secondConditions = {
     'or': [
-      { 'deviceName': deviceFilters["deviceName"] },
-      { 'deviceType': deviceFilters["deviceType"] },
+      { 'deviceName': initialFilters["deviceName"] },
+      { 'deviceType': initialFilters["deviceType"] },
   ]}
 
   const thirdConditions = {
     "and": [
-      { "creationDate": { date: deviceFilters["creationDateMin"], operator: 'greaterThan' } },
-      { "creationDate": { date: deviceFilters["creationDateMax"], operator: 'lessThan' } },
+      { "creationDate": { date: initialFilters["creationDateMin"], operator: 'greaterThan' } },
+      { "creationDate": { date: initialFilters["creationDateMax"], operator: 'lessThan' } },
     ],
   };
 
   const fourthConditions = {
     and: [
       { 'deviceProperties.port': 8088 },  // Use key chaining to access nested properties
-      { deviceType: deviceFilters["deviceType"] }
+      { deviceType: initialFilters["deviceType"] }
     ]
   };
-  const filteredData = useFlexibleFilter(deviceData, deviceFilters, fourthConditions )
+
+  // Choose Cond Type
+  useEffect(() => {
+    setCondition(thirdConditions)
+  },[])
+  // Filter Custom Hook
+  const filteredData = useFlexibleFilter(deviceData, initialFilters, condition);
 
   return (
     <PaperProvider>
@@ -72,14 +67,8 @@ export default function App() {
         <Text style={styles.header}>Flexible Filter</Text>
         {/* Display inputs to filter */}
         <View style={styles.inputContainer}>
-          {inputsData.map((item) => (
-          <InputOriginal
-            key={item.id}
-            label={item.label} 
-            value={deviceFilters[item.filterKey]} 
-            onChangeText={(v) => updateDeviceFilters(item.filterKey, v)}
-          />
-          ))}
+        <Text style={[styles.conditionText, { fontWeight:"bold" }]}>Condition:</Text>
+          <Text style={styles.conditionText}>{JSON.stringify(condition)}</Text>
         </View>
         {/* Displaying DataTable  */}
         <TableCard deviceData={filteredData} />
@@ -103,15 +92,23 @@ const styles = StyleSheet.create({
     color: color.black,
   },
   inputContainer: { 
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 20, 
-    paddingHorizontal: 15, 
-    paddingVertical: 25, 
     borderRadius: 20, 
+    paddingVertical: 20,
     backgroundColor: "#fff" 
+  },
+  conditionText: {
+    flex: 1,
+    alignItems: "flex-start",
+    padding: 10,
+    fontSize:  width >= 500 ? 20 : 16, 
+    fontWeight: "500", 
   },
   header: { 
     fontSize:  width >= 500 ? 36 : 32, // Responsive fontSize
-    fontStyle: "italic",
     fontWeight: "500", 
     textAlign: "center",
     color: color.black,
