@@ -22,9 +22,8 @@ export default function App() {
     deviceType: "",
     devicePort: 8088,
     creationDateMin: '2021-05-01',
-    creationDateMax: '2022-01-06'
+    creationDateMax: '2023-01-06'
   };
-  const [condition, setCondition] = useState({})
   const firstConditions = {
     'and': [
       { 'deviceName': initialFilters["deviceName"] },
@@ -46,17 +45,13 @@ export default function App() {
 
   const fourthConditions = {
     and: [
-      { 'deviceProperties.port': 8088 },  // Use key chaining to access nested properties
+      { 'deviceProperties.port': initialFilters["devicePort"] },  // Use key chaining to access nested properties
       { deviceType: initialFilters["deviceType"] }
     ]
   };
-
-  // Choose Cond Type
-  useEffect(() => {
-    setCondition(thirdConditions)
-  },[])
-  // Filter Custom Hook
-  const filteredData = useFlexibleFilter(deviceData, initialFilters, condition);
+  // CONDITION SELECTION
+  const selectedCondition = thirdConditions
+  const filteredData = useFlexibleFilter(deviceData, initialFilters, selectedCondition);
 
   return (
     <PaperProvider>
@@ -68,7 +63,7 @@ export default function App() {
         {/* Display inputs to filter */}
         <View style={styles.inputContainer}>
         <Text style={[styles.conditionText, { fontWeight:"bold" }]}>Condition:</Text>
-          <Text style={styles.conditionText}>{JSON.stringify(condition)}</Text>
+          <Text style={styles.conditionText}>{JSON.stringify(selectedCondition)}</Text>
         </View>
         {/* Displaying DataTable  */}
         <TableCard deviceData={filteredData} />
